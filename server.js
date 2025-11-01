@@ -31,5 +31,7 @@ app.use("/api/order", orderRouter);
 app.get("/", (req, res) => res.status(200).send("Hello World"));
 
 //listen
-app.listen(port, () => console.log(`Listening on http://localhost:${port}`));
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`);
+});
 //mongodb+srv://thiensinh:120795@cluster0.cfrpgq6.mongodb.net/?
