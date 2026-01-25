@@ -91,7 +91,18 @@ const userOrders = async (req, res) => {
 //  Listing Orders for admin panel
 const listOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({});
+    const query = {};
+    if (req.query.status && req.query.status !== "All") {
+      query.status = req.query.status;
+    }
+    if (req.query.search) {
+      const searchRegex = { $regex: req.query.search, $options: "i" };
+      query.$or = [
+        { "address.firstName": searchRegex },
+        { "address.lastName": searchRegex }
+      ];
+    }
+    const orders = await orderModel.find(query);
     res.json({ success: true, data: orders });
   } catch (error) {
     console.log(error);
@@ -99,4 +110,16 @@ const listOrders = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders };
+// delete order for admin panel
+const deleteOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    await orderModel.findByIdAndDelete(orderId);
+    res.json({ success: true, message: "Order deleted" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+
+export { placeOrder, verifyOrder, userOrders, listOrders, deleteOrder };
