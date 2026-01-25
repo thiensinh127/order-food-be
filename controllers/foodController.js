@@ -26,8 +26,23 @@ const addFood = async (req, res) => {
 // get all food list
 const listFood = async (req, res) => {
   try {
-    const foods = await foodModel.find({}).sort({ createdAt: -1 });
-    res.json({ success: true, data: foods });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
+
+    // Build query object
+    const query = {};
+    if (req.query.search) {
+      query.name = { $regex: req.query.search, $options: "i" };
+    }
+    if (req.query.category && req.query.category !== "All") {
+      query.category = req.query.category;
+    }
+
+    const total = await foodModel.countDocuments(query);
+    const foods = await foodModel.find(query).sort({ createdAt: -1, _id: 1 }).skip(skip).limit(limit);
+
+    res.json({ success: true, data: foods, total, page, limit });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
