@@ -8,6 +8,7 @@ import userRouter from "./routes/userRoutes.js";
 import "dotenv/config.js";
 import cartRouter from "./routes/cartRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import { imageStaticOptions } from "./config/staticImages.js";
 
 //app config
 const app = express();
@@ -23,7 +24,7 @@ connectDB();
 
 //API Endpoints
 app.use("/api/food", foodRouter);
-app.use("/images", express.static("uploads"));
+app.use("/images", express.static("uploads", imageStaticOptions));
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
