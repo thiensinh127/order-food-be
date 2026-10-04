@@ -1,20 +1,20 @@
 import foodModel from "../models/foodModel.js";
 import fs from "fs";
 import path from "path";
+import { processUploadedImage } from "../utils/imageProcessor.js";
 
 // add food item
 
 const addFood = async (req, res) => {
-  let image_filename = `${req.file.filename}`;
-
-  const food = new foodModel({
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    image: image_filename,
-    category: req.body.category,
-  });
   try {
+    const image = await processUploadedImage(req.file);
+    const food = new foodModel({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      image,
+      category: req.body.category,
+    });
     await food.save();
     res.json({ success: true, message: "Food added" });
   } catch (error) {
@@ -72,7 +72,7 @@ const updateFood = async (req, res) => {
     };
 
     if (req.file) {
-      const newImage = req.file.filename;
+      const newImage = await processUploadedImage(req.file);
       const oldImagePath = path.join("uploads", food.image);
 
       if (fs.existsSync(oldImagePath)) {
